@@ -32,21 +32,51 @@ func NewBasicEndpointAuthorizer(epr []string) EndpointAuthorizer {
 type Endpoint struct {
 	local  string
 	remote string
+	proto  string
 }
 
 func EndpointFromString(s string) (ep Endpoint, err error) {
-	a := strings.Split(s, ":")
+	ss := strings.Split(s, ";")
+	if len(ss) < 1 {
+		return ep, fmt.Errorf("invalid endpoint: %s", s)
+	}
+
+	a := strings.Split(ss[0], ":")
 	if len(a) != 4 {
-		return ep, fmt.Errorf("invalid forward endpoint: %s", s)
+		return ep, fmt.Errorf("invalid endpoint: %s", s)
 	}
 
 	ep = Endpoint{
 		local:  a[0] + ":" + a[1],
 		remote: a[2] + ":" + a[3],
 	}
+
+	if len(ss) == 1 {
+		return
+	}
+
+	for _, s := range ss[1:] {
+		l, err := labelFromString(s)
+		if err != nil {
+			return ep, fmt.Errorf("cannot parse label (%s) : %w", s, err)
+		}
+
+		switch l.key {
+		case "proto":
+			ep.proto = l.value
+		default:
+			return ep, fmt.Errorf("invalid label: %s", l.value)
+		}
+	}
 	return
 }
 
 func (ep Endpoint) String() string {
-	return ep.local + ":" + ep.remote
+	buff := strings.Builder{}
+	buff.WriteString(ep.local + ":" + ep.remote)
+	if ep.proto != "" {
+		buff.WriteString(";")
+		buff.WriteString(newLabel("proto", ep.proto).String())
+	}
+	return buff.String()
 }
