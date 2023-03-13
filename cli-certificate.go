@@ -23,7 +23,7 @@ type CliCertificateGenerate struct {
 	CaCertFile string `name:"cacert" default:"cacert.pem" help:"path to existing ca certificate. If CA key and cert does not exist, it will be created using default settings."`
 
 	Name     string        `name:"name" required:"" placeholder:"\"certificate name\"" help:"The name represented by this certificate"`
-	Labels   []label       `name:"label" help:"List of arbritrary key=value"`
+	Labels   []Label       `name:"label" help:"List of arbritrary key=value"`
 	Duration time.Duration `name:"duration" help:"The duration the certificate will be active upon its creation."`
 }
 
@@ -124,7 +124,7 @@ type CliCertificateGenerateCA struct {
 	CacertFile string `name:"cacert" default:"cacert.pem" help:"path to save the generated ca certificate"`
 
 	Name     string        `name:"name" required:"" help:"The name represented by this certificate"`
-	Labels   []label       `name:"label" help:"List of arbritrary key=value"`
+	Labels   []Label       `name:"label" help:"List of arbritrary key=value"`
 	Duration time.Duration `name:"duration" default:"8760h0m0s" help:"The duration the certificate will be active upon its creation."`
 }
 
@@ -180,7 +180,7 @@ type CliCertificateReSign struct {
 	CaCertFile string `name:"cacert" default:"cacert.pem" help:"path to existing ca certificate"`
 
 	Name     *string        `name:"name" required:"" help:"The name represented by this certificate"`
-	Labels   []label        `name:"label" help:"List of arbritrary key=value"`
+	Labels   []Label        `name:"label" help:"List of arbritrary key=value"`
 	Duration *time.Duration `name:"duration" help:"The duration the certificate will be active upon its creation."`
 }
 

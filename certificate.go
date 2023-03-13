@@ -49,7 +49,7 @@ type AetherportCertificate struct {
 
 type AetherportCertificateDetails struct {
 	Name      string
-	Labels    []label
+	Labels    []Label
 	NotBefore time.Time
 	NotAfter  time.Time
 	PublicKey []byte
@@ -74,7 +74,7 @@ func UnmarshalAetherportCertificate(b []byte) (ac *AetherportCertificate, err er
 	ac = &AetherportCertificate{
 		Details: AetherportCertificateDetails{
 			Name:      acr.Details.Name,
-			Labels:    make([]label, len(acr.Details.Labels)),
+			Labels:    make([]Label, len(acr.Details.Labels)),
 			NotBefore: time.Unix(0, acr.Details.NotBefore),
 			NotAfter:  time.Unix(0, acr.Details.NotAfter),
 			PublicKey: make([]byte, len(acr.Details.PublicKey)),
@@ -256,55 +256,4 @@ func (ac *AetherportCertificate) Sha256Sum() (string, error) {
 
 func (ac *AetherportCertificate) Expired(t time.Time) bool {
 	return ac.Details.NotBefore.After(t) || ac.Details.NotAfter.Before(t)
-}
-
-type label struct {
-	key   string
-	value string
-}
-
-func newLabel(key string, value string) label {
-	return label{key: key, value: value}
-}
-
-func labelFromString(s string) (l label, err error) {
-	err = l.UnmarshalText([]byte(s))
-	return
-}
-
-func (l label) String() string {
-	if l.key == "" {
-		return ""
-	}
-
-	return l.key + "=" + l.value
-}
-
-func (l label) MarshalText() (text []byte, err error) {
-	return []byte(l.String()), err
-}
-
-func (l *label) UnmarshalText(text []byte) error {
-	if len(text) == 0 {
-		return nil
-	}
-
-	i := bytes.IndexRune(text, '=')
-	if i < 1 {
-		return fmt.Errorf("invalid labels: %x", text)
-	}
-
-	l.key = string(text[:i-1])
-	if i < len(text)-1 {
-		l.value = string(text[i+1:])
-	}
-	return nil
-}
-
-func (l label) MarshalBinary() (data []byte, err error) {
-	return l.MarshalText()
-}
-
-func (l *label) UnmarshalBinary(data []byte) error {
-	return l.UnmarshalText(data)
 }
