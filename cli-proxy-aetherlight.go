@@ -57,8 +57,14 @@ func (c *CliProxy) runAetherlight(ctx context.Context) (err error) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if err := c.runAetherlightIngress(ctx, id); err != nil {
-				log.Println("run aetherlight ingress failed:", err)
+			for {
+				if err := c.runAetherlightIngress(ctx, id); err != nil {
+					log.Println("run aetherlight ingress failed:", err)
+				}
+				if ctx.Err() != nil {
+					return
+				}
+				<-time.After(time.Second)
 			}
 		}()
 	}
@@ -66,8 +72,14 @@ func (c *CliProxy) runAetherlight(ctx context.Context) (err error) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if err := c.runAetherlightEgress(ctx, id); err != nil {
-				log.Println("run aetherlight egress failed:", err)
+			for {
+				if err := c.runAetherlightEgress(ctx, id); err != nil {
+					log.Println("run aetherlight egress failed:", err)
+				}
+				if ctx.Err() != nil {
+					return
+				}
+				<-time.After(time.Second)
 			}
 		}()
 	}
