@@ -1,6 +1,6 @@
 # Aetherport
 
-Layer 4 proxy utilizing WebRTC which enables port-forwarding without dedicated allocation of ingress IP and port.
+Layer 4 proxy utilizing WebRTC which enables port-forwarding without using dedicated IP and port.
 
 ## Use Cases
 
