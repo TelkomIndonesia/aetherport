@@ -86,14 +86,14 @@ func (igp *IngressProxy) createTunnelsListener(ctx context.Context) {
 			return
 		}
 
-		if igp.epAuth != nil {
-			ep, err := EndpointFromString(dc.Label())
-			if err != nil {
-				log.Printf("got invalid endpoint: %s: %s\n", dc.Label(), err)
-				dc.Close()
-				return
-			}
+		ep, err := EndpointFromString(dc.Label())
+		if err != nil {
+			log.Printf("got invalid endpoint: %s: %s\n", dc.Label(), err)
+			dc.Close()
+			return
+		}
 
+		if igp.epAuth != nil {
 			if ok, err := igp.epAuth(ep); !ok || err != nil {
 				if err != nil {
 					log.Printf("error when authorizing endpoint: %s: %s", dc.Label(), err)
@@ -107,7 +107,7 @@ func (igp *IngressProxy) createTunnelsListener(ctx context.Context) {
 
 		log.Println("got data channel: ", dc.Label())
 		go func() {
-			err := igp.createTunnel(ctx, dc)
+			err := igp.createTunnel(ctx, dc, ep)
 			if err != nil {
 				log.Println("create tunnel failed: ", err)
 			}
@@ -115,7 +115,7 @@ func (igp *IngressProxy) createTunnelsListener(ctx context.Context) {
 	})
 }
 
-func (igp *IngressProxy) createTunnel(ctx context.Context, dc *webrtc.DataChannel) (err error) {
+func (igp *IngressProxy) createTunnel(ctx context.Context, dc *webrtc.DataChannel, ep Endpoint) (err error) {
 	defer dc.Close()
 
 	ctx, cancel := context.WithCancel(ctx)
@@ -144,7 +144,7 @@ func (igp *IngressProxy) createTunnel(ctx context.Context, dc *webrtc.DataChanne
 			continue
 		}
 
-		conn, err := net.Dial("tcp", dc.Label())
+		conn, err := net.Dial("tcp", ep.remote)
 		if err != nil {
 			log.Println("ingress: dial error: ", err)
 			continue
